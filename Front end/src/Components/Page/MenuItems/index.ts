@@ -1,3 +1,4 @@
 import MenuItemCard from "./MenuItemCard";
+import MenuItemsList from "./MenuItemsList";
 
-export {MenuItemCard};
+export {MenuItemCard, MenuItemsList};

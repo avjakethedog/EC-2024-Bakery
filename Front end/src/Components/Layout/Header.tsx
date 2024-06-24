@@ -1,5 +1,5 @@
 import React from "react";
-
+import { NavLink } from "react-router-dom";
 let logo = require("../../Assests/Images/logo.png");
 
 function Header() {
@@ -15,11 +15,13 @@ function Header() {
   return (
     <div>
       <nav
-        className="navbar navbar-expand-lg bg-body-tertiary"
+        className="d-flex navbar navbar-expand-lg bg-body-tertiary row justify-content-space-between"
         style={navStyle}
       >
         <div className="container-fluid">
-          <img src={logo} style={{ height: "50px" }} className="m-1" />
+          <NavLink className="nav-link active" aria-current="page" to="/">
+            <img src={logo} style={{ height: "50px" }} className="m-1" />
+          </NavLink>
           <button
             className="navbar-toggler"
             type="button"
@@ -34,9 +36,9 @@ function Header() {
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item" style={{ marginRight: "20px" }}>
-                <a className="nav-link active" aria-current="page" href="#">
+                <NavLink className="nav-link active" aria-current="page" to="/">
                   Home
-                </a>
+                </NavLink>
               </li>
               <li className="nav-item dropdown" style={{ marginRight: "20px" }}>
                 <a
@@ -85,7 +87,7 @@ function Header() {
                 <form
                   className="d-flex"
                   role="search"
-                  style={{ marginLeft: "10rem" }}
+                  style={{ marginRight: "700px" }}
                 >
                   <input
                     className="form-control me-2"
@@ -97,6 +99,15 @@ function Header() {
                     Search
                   </button>
                 </form>
+              </li>
+              <li className="nav-item" style={{ marginRight: "20px" }}>
+                <NavLink
+                  className="nav-link active"
+                  aria-current="page"
+                  to="/shoppingCart"
+                >
+                  <i className="bi bi-cart3" style={{ marginLeft: "1px" }}></i>
+                </NavLink>
               </li>
             </ul>
           </div>

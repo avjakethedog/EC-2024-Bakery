@@ -1,18 +1,22 @@
 import React from "react";
 import { Header, Footer } from "../Components/Layout";
-import { Home } from "../Pages";
-import { MenuItemCard } from "../Components/Page/MenuItems";
+import { Home, MenuItemDetails, NotFound } from "../Pages";
+import { Routes, Route } from "react-router-dom";
 
 function App() {
   return (
     <div className="text-success">
       <Header />
-      <MenuItemCard />
-      <MenuItemCard />
-      <MenuItemCard />
-      <MenuItemCard />
-      <MenuItemCard />
-      <MenuItemCard />
+      <div className="pb-5">
+        <Routes>
+          <Route path="/" element={<Home />}></Route>
+          <Route
+            path="/menuItemDetails/:id"
+            element={<MenuItemDetails />}
+          ></Route>
+          <Route path="*" element={<NotFound />}></Route>
+        </Routes>
+      </div>
       <Footer />
     </div>
   );
