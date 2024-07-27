@@ -1,19 +1,13 @@
 import React from "react";
-import { Header, Footer } from "../Components/Layout";
-import { Home } from "../Pages";
-import { MenuItemCard } from "../Components/Page/MenuItems";
+import { BrowserRouter as Router } from "react-router-dom";
+import AppRoutes from '../routes';  // Đảm bảo đường dẫn chính xác
 
 function App() {
   return (
-    <div className="text-success">
-      <Header />
-      <MenuItemCard />
-      <MenuItemCard />
-      <MenuItemCard />
-      <MenuItemCard />
-      <MenuItemCard />
-      <MenuItemCard />
-      <Footer />
+    <div className="App">
+      <Router>
+        <AppRoutes />
+      </Router>
     </div>
   );
 }

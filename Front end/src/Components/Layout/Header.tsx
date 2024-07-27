@@ -1,109 +1,89 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from 'react';
+import { FaSearch, FaShoppingCart, FaClipboardList } from 'react-icons/fa';
+let logo = require('../../Assests/Images/logo.png');
 
-let logo = require("../../Assests/Images/logo.png");
+const Header: React.FC = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-function Header() {
-  const navStyle = {
-    backgroundColor: "#F5F5F5",
-    border: "1px solid #000000",
-  };
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  const liStlye = {
-    marginRight: "20px",
-  };
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
-    <div>
-      <nav
-        className="navbar navbar-expand-lg bg-body-tertiary"
-        style={navStyle}
-      >
-        <div className="container-fluid">
-          <img src={logo} style={{ height: "50px" }} className="m-1" />
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-              <li className="nav-item" style={{ marginRight: "20px" }}>
-                <a className="nav-link active" aria-current="page" href="#">
-                  Home
-                </a>
-              </li>
-              <li className="nav-item dropdown" style={{ marginRight: "20px" }}>
-                <a
-                  className="nav-link dropdown-toggle"
-                  href="#"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  Menu
-                </a>
-                <ul className="dropdown-menu">
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      Cake 1
-                    </a>
-                  </li>
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      Cake 2
-                    </a>
-                  </li>
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      Cake 3
-                    </a>
-                  </li>
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      Cake 4
-                    </a>
-                  </li>
-                  <li>
-                    <a className="dropdown-item" href="#">
-                      Cake 5
-                    </a>
-                  </li>
-                </ul>
-              </li>
-              <li className="nav-item" style={{ marginRight: "100px" }}>
-                <a className="nav-link" href="#">
-                  About us
-                </a>
-              </li>
-              <li>
-                <form
-                  className="d-flex"
-                  role="search"
-                  style={{ marginLeft: "10rem" }}
-                >
-                  <input
-                    className="form-control me-2"
-                    type="search"
-                    placeholder="Search"
-                    aria-label="Search"
-                  />
-                  <button className="btn btn-outline-success" type="submit">
-                    Search
-                  </button>
-                </form>
-              </li>
-            </ul>
+    <header className="flex justify-between items-center p-4 border-b border-gray-300 bg-white">
+      <div className="flex items-center space-x-10">
+        <img src={logo} alt="Logo" className="h-21 w-21 md:h-24 md:w-24" />
+        <nav className="hidden md:flex space-x-10">
+          <a href="#" className="text-black hover:text-blue-600">Home</a>
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={toggleMenu}
+              className="flex items-center space-x-1 text-black hover:text-blue-600"
+            >
+              <span>Menu</span>
+              <svg
+                className="w-5 h-5"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M6.293 7.293a1 1 0 011.414 0L10 8.586l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+            {isMenuOpen && (
+              <div className="absolute left-0 mt-2 w-48 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                <a href="#" className="block px-4 py-2 text-base text-gray-700 hover:bg-gray-100">Cake 1</a>
+                <a href="#" className="block px-4 py-2 text-base text-gray-700 hover:bg-gray-100">Cake 2</a>
+                <a href="#" className="block px-4 py-2 text-base text-gray-700 hover:bg-gray-100">Cake 3</a>
+                <a href="#" className="block px-4 py-2 text-base text-gray-700 hover:bg-gray-100">Cake 4</a>
+                <a href="#" className="block px-4 py-2 text-base text-gray-700 hover:bg-gray-100">Cake 5</a>
+              </div>
+            )}
           </div>
+          <a href="#" className="text-black hover:text-blue-600">About Us</a>
+        </nav>
+      </div>
+      <div className="flex items-center space-x-10">
+        <div className="relative flex-grow max-w-lg"> {/* Đặt max-width lớn hơn */}
+          <input
+            type="text"
+            placeholder="Search for Food items"
+            className="border rounded-full px-4 py-2 pl-10 w-full"
+          />
+          <span className="absolute left-2 top-3 text-gray-500">
+            <FaSearch />
+          </span>
         </div>
-      </nav>
-    </div>
+        <div className="hidden md:flex items-center space-x-2">
+          <div className="bg-gray-300 rounded-full h-8 w-8 md:h-10 md:w-10"></div>
+          <span>Hi User</span>
+        </div>
+        <span className="text-xl md:text-2xl">
+          <FaShoppingCart />
+        </span>
+        <span className="text-xl md:text-2xl">
+          <FaClipboardList />
+        </span>
+      </div>
+    </header>
   );
-}
+};
 
 export default Header;
