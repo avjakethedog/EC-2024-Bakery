@@ -1,134 +1,88 @@
-import React from "react";
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { menuItemModel } from "../Interfaces";
+import React, { useState, useEffect, useRef } from "react";
+import { useParams, NavLink, useNavigate } from "react-router-dom";
+import { cartItemModel, menuItemModel, price } from "../Interfaces";
 import { MainLoader } from "../Components/Page/Common";
+import { useGetMenuItemByIdQuery } from "../Apis/menuItemApi";
+import {
+  useAddShoppingCartItemMutation,
+  useGetShoppingCartQuery,
+  useUpdateShoppingCartMutation,
+} from "../Apis/shoppingCartApi";
+import CartItem from "../Components/Page/Cart/CartItem";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../Storage/Redux/store";
+import { AddToCartPayload } from "../Interfaces/addToCartPayLoad";
 
 function MenuItemDetails() {
+  //const { id } = useParams();
   const { id } = useParams();
-  console.log("ID from URL:", id);
-
-  const menuItems: menuItemModel[] = [
-    {
-      id: 1,
-      name: "Bánh Pizza",
-      description: "Bánh Được Làm Từ Bột",
-      specialTag: "",
-      category: "Bánh Nướng",
-      price: 200,
-      image:
-        "https://bizweb.dktcdn.net/100/449/089/products/pizza-xuc-xich-pho-mai-vuong-50w.jpg?v=1648636728243",
-    },
-    {
-      id: 2,
-      name: "Bánh Su Kem",
-      description: "Bánh Được Làm Từ Bột",
-      specialTag: "Best Seller",
-      category: "Bánh Nướng",
-      price: 200,
-      image:
-        "https://bizweb.dktcdn.net/thumb/1024x1024/100/487/455/products/choux-1695873488314.jpg?v=1695873492293",
-    },
-    {
-      id: 3,
-      name: "Bánh Bông Lan",
-      description: "Bánh Làm Từ Bột",
-      specialTag: "Best Seller",
-      category: "Bánh Nướng",
-      price: 200,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6vRtpZi4NzBo31F_PRnBmV8EREJUzqxE8Lw&s",
-    },
-    {
-      id: 4,
-      name: "Bánh Tart",
-      description: "Bánh Làm Từ Bột",
-      specialTag: "Special",
-      category: "Bánh Nướng",
-      price: 200,
-      image:
-        "https://www.huongnghiepaau.com/wp-content/uploads/2018/05/6ce8174e82984e94a7a98889b7c17e32.jpg",
-    },
-    {
-      id: 5,
-      name: "Bánh Phô Mai Nướng",
-      description: "Bánh Làm Từ Bột",
-      specialTag: "",
-      category: "Bánh Nướng",
-      price: 200,
-      image:
-        "https://afamilycdn.com/150157425591193600/2021/4/3/giphy-16174384948161640949221.gif",
-    },
-    {
-      id: 6,
-      name: "Bánh Quy",
-      description: "Bánh Làm Từ Bột",
-      specialTag: "",
-      category: "Bánh Nướng",
-      price: 200,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTb-91Modji559H90JYL1eyjHtgt7xn7zv1Ag&s",
-    },
-    {
-      id: 7,
-      name: "Bánh Donut",
-      description: "Bánh Làm Từ Bột",
-      specialTag: "",
-      category: "Bánh Nướng",
-      price: 200,
-      image:
-        "https://cdn.tgdd.vn/Files/2021/07/28/1371385/cach-lam-banh-donut-nuong-va-chien-cuc-ngon-va-don-gian-ai-cung-lam-duoc-202112301055414590.jpg",
-    },
-    {
-      id: 8,
-      name: "Bánh Sừng Bò",
-      description: "Bánh Làm Từ Bột",
-      specialTag: "Best Seller",
-      category: "Bánh Nướng",
-      price: 200,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkKcTTGOo9SHmxeB9sOT2FW3sVtLZtGZNhRg&s",
-    },
-  ];
-
+  const { data: menuItemData, isLoading } = useGetMenuItemByIdQuery(id);
   const [quantity, setQuantity] = useState(1);
-  const [totalPrice, setTotalPrice] = useState(0);
+  const navigate = useNavigate();
+
+  console.log("menu: ", menuItemData?.data?._id);
+
   const [isAddingToCart, setIsAddingToCart] = useState<boolean>(false);
-  const [cart, setCart] = useState<menuItemModel[]>([]); // State để lưu trữ giỏ hàng
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [updateShoppingCart] = useUpdateShoppingCartMutation();
+
+  const [addToCart] = useAddShoppingCartItemMutation();
+
+  const [selectedPackage, setSelectedPackage] = useState<price | null>(null);
+  const [priceValue, setPriceValue] = useState<number | null>(null); // Biến trạng thái để lưu giá tiền
+
+  const packageRef = useRef<HTMLDivElement>(null);
+  const quantityRef = useRef<HTMLDivElement>(null);
+  const [clickTimeout, setClickTimeout] = useState<number | null>(null);
+
+  //const orderId = localStorage.getItem("orderId") || "";
+  const orderId = sessionStorage.getItem("orderId") || "";
+  console.log("orderId", orderId);
+
+  const selectedPackageRef = useRef(selectedPackage);
+
+  const userData = sessionStorage.getItem("userId");
+  // useEffect(() => {
+  //   selectedPackageRef.current = selectedPackage;
+  // }, [selectedPackage]);
+
+  // useEffect(() => {
+  //   const handleClickOutside = (event: MouseEvent) => {
+  //     if (
+  //       packageRef.current &&
+  //       !packageRef.current.contains(event.target as Node) &&
+  //       quantityRef.current &&
+  //       !quantityRef.current.contains(event.target as Node)
+  //     ) {
+  //       setSelectedPackage(null);
+  //     }
+  //   };
+
+  //   document.addEventListener("mousedown", handleClickOutside);
+
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, [packageRef, quantityRef]);
 
   useEffect(() => {
-    if (id) {
-      const numericId = parseInt(id, 10);
-      const menuItem = menuItems.find((item) => item.id === numericId);
-
-      if (menuItem) {
-        setTotalPrice(menuItem.price * quantity);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        packageRef.current &&
+        !packageRef.current.contains(event.target as Node) &&
+        quantityRef.current &&
+        !quantityRef.current.contains(event.target as Node)
+      ) {
+        // Không đặt lại `selectedPackage` khi click bên ngoài
+        //setSelectedPackage(null);
       }
-    }
-  }, [id, quantity]);
+    };
 
-  useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 300);
-  }, []);
+    document.addEventListener("mousedown", handleClickOutside);
 
-  if (!id) {
-    return <div>Product not found</div>;
-  }
-
-  const numericId = parseInt(id, 10);
-  if (isNaN(numericId)) {
-    return <div>Product not found</div>;
-  }
-
-  const menuItem = menuItems.find((item) => item.id === numericId);
-  console.log("Menu Item found:", menuItem);
-
-  if (!menuItem) {
-    return <div>Product not found</div>;
-  }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [packageRef, quantityRef]);
 
   const handleQuantity = (counter: number) => {
     let newQuantity = quantity + counter;
@@ -136,89 +90,237 @@ function MenuItemDetails() {
       newQuantity = 1;
     }
     setQuantity(newQuantity);
-    return;
   };
 
-  const handleAddToCart = (menuItem: menuItemModel) => {
+  // useEffect(() => {
+  //   if (menuItemData?.data?.prices?.length > 0) {
+  //     // Tìm gói có giá thấp nhất
+  //     const cheapestPackage = menuItemData.data.prices.reduce(
+  //       (min: { price: number }, p: { price: number }) =>
+  //         p.price < min.price ? p : min
+  //     );
+
+  //     // Cập nhật trạng thái với gói rẻ nhất
+  //     setSelectedPackage(cheapestPackage);
+  //     setPriceValue(cheapestPackage.price);
+  //   }
+  // }, [menuItemData]);
+
+  const handlePackageClick = (price: price) => {
+    // if (clickTimeout) {
+    //   clearTimeout(clickTimeout);
+    //   setClickTimeout(null);
+    //   if (selectedPackage === price) {
+    //     setSelectedPackage(null);
+    //   }
+    // } else {
+    //   setClickTimeout(
+    //     window.setTimeout(() => {
+    //       setSelectedPackage(price);
+    //       console.log(
+    //         `Gói sản phẩm được chọn: ${price.name}, Giá: ${price.price}`
+    //       );
+    //       setClickTimeout(null);
+    //     }, 300)
+    //   );
+    // }
+    setSelectedPackage(price);
+    //setPriceValue(price.price); // Cập nhật giá trị của giá tiền khi chọn gói
+    console.log(`Gói sản phẩm được chọn: ${price.name}, Giá: ${price.price}`);
+  };
+
+  console.log("gia tien: ", selectedPackage?.price);
+  const { data: cartItems } = useGetShoppingCartQuery(orderId);
+
+  console.log("test demo: ", cartItems);
+
+  const handleAddToCart = async () => {
+    if (!userData) {
+      navigate("/login");
+      return;
+    }
+    //e: { preventDefault: () => void }
+    //e.preventDefault();
+    // if (!selectedPackageRef.current) {
+    //   console.log("Không có gói sản phẩm nào được chọn.");
+    //   return;
+    // }
+    console.log("Thêm vào giỏ hàng được gọi");
     setIsAddingToCart(true);
 
-    setTimeout(() => {
-      setCart([...cart, menuItem]);
-      setIsAddingToCart(false);
-      console.log("Sản phẩm đã được thêm vào giỏ hàng: ", menuItem);
-    }, 1000);
-  };
+    const priceOne = Number(selectedPackage?.price ?? 0);
+    const totalPrice = priceOne * quantity;
 
-  if (isLoading) {
-    return <MainLoader />;
-  }
+    // try {
+    //   const response = await addToCart({
+    //     orderid: orderId,
+    //     productid: id,
+    //     quantity: quantity,
+    //     priceone: selectedPackage?.price,
+    //     price: totalPrice,
+    //   });
+    //   console.log("Add to cart response:", response);
+    // } catch (error) {
+    //   console.error("Failed to add to cart:", error);
+    // } finally {
+    //   setIsAddingToCart(false);
+    // }
+
+    try {
+      // Lấy danh sách sản phẩm trong giỏ hàng hiện tại
+      //  const { data: cartItems } = useGetShoppingCartQuery(orderId);
+
+      // Tìm sản phẩm đã tồn tại trong giỏ hàng
+      const existingCartItem = cartItems.data?.find(
+        (item: { productid: string | undefined; priceone: number }) =>
+          item.productid === id && item.priceone === priceOne
+      );
+
+      if (existingCartItem) {
+        // Nếu sản phẩm đã tồn tại, cập nhật số lượng
+        const newQuantity = existingCartItem.quantity + quantity;
+        const newPrice = newQuantity * priceOne;
+
+        await updateShoppingCart({
+          _id: existingCartItem._id,
+          quantity: newQuantity,
+          priceone: priceOne,
+          price: newPrice,
+        });
+
+        console.log("Sản phẩm đã được cập nhật trong giỏ hàng.");
+      } else {
+        // Nếu sản phẩm chưa tồn tại, thêm mới sản phẩm
+        const totalPrice = quantity * priceOne;
+
+        await addToCart({
+          orderid: orderId,
+          productid: id,
+          quantity: quantity,
+          priceone: priceOne,
+          price: totalPrice,
+        });
+
+        console.log("Sản phẩm đã được thêm vào giỏ hàng.");
+      }
+    } catch (error) {
+      console.error("Không thể thêm vào giỏ hàng:", error);
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
 
   return (
     <div className="container pt-4 pt-md-5">
-      <div className="row align-items-center">
-        <div className="col-md-7">
-          <h2 className="text-success">{menuItem.name}</h2>
-          <span className="d-block mb-2">
-            <span
-              className="badge text-bg-dark pt-2"
-              style={{ height: "40px", fontSize: "20px" }}
-            >
-              {menuItem.category}
+      {!isLoading ? (
+        <div className="row align-items-center">
+          <div className="col-md-7">
+            <div className="d-flex align-items-center">
+              <h2 className="text-success me-3">{menuItemData.data?.name}</h2>
+              <span className="text-danger h4 ms-3">
+                {selectedPackage ? (
+                  `${selectedPackage.price.toLocaleString()} ₫`
+                ) : (
+                  <>
+                    {menuItemData.data?.prices
+                      .map((price: price) => price.price.toLocaleString())
+                      .join(" ₫ - ")}{" "}
+                    ₫
+                  </>
+                )}
+              </span>
+            </div>
+            <span className="d-block mb-2">
+              <span
+                className="badge text-bg-dark pt-2"
+                style={{ height: "40px", fontSize: "20px" }}
+              >
+                {menuItemData.data?.category}
+              </span>
+              <span
+                className="badge text-bg-light pt-2 ms-2 fst-italic"
+                style={{ height: "40px", fontSize: "20px" }}
+              >
+                Hoàn thành trong {menuItemData.data?.totalTimeToCook} phút
+              </span>
             </span>
-            <span
-              className="badge text-bg-light pt-2 ms-2"
-              style={{ height: "40px", fontSize: "20px" }}
-            >
-              {menuItem.specialTag}
-            </span>
-          </span>
-          <p style={{ fontSize: "20px" }} className="pt-2">
-            {menuItem.description}
-          </p>
-          <div className="d-flex align-items-center mb-2">
-            <span className="h3 me-3">{totalPrice}$</span>
-            <div
-              className="pb-2 p-3"
-              style={{ border: "1px solid #333", borderRadius: "30px" }}
-            >
-              <i
-                className="bi bi-dash p-1"
-                style={{ fontSize: "25px", cursor: "pointer" }}
-                onClick={() => {
-                  handleQuantity(-1);
+            <p style={{ fontSize: "20px" }} className="pt-2">
+              {menuItemData.data?.description}
+            </p>
+            {/* Phần hiển thị gói phân loại */}
+            <div className="mb-3" ref={packageRef}>
+              {menuItemData.data?.prices.map((price: price, index: number) => (
+                <button
+                  key={index}
+                  className={`btn btn-outline-secondary me-2 ${
+                    selectedPackage === price ? "active" : ""
+                  }`}
+                  onClick={() => handlePackageClick(price)}
+                >
+                  {price.name}
+                </button>
+              ))}
+            </div>
+            {/* Hiển thị giá tiền */}
+            <div className="d-flex align-items-center mb-2" ref={quantityRef}>
+              <div
+                className="pb-2 p-3"
+                style={{
+                  border: "1px solid #333",
+                  borderRadius: "30px",
+                  width: "150px",
                 }}
-              />
-              <span className="h3 mt-3 px-3">{quantity}</span>
-              <i
-                className="bi bi-plus p-1"
-                style={{ fontSize: "25px", cursor: "pointer" }}
-                onClick={() => {
-                  handleQuantity(+1);
-                }}
-              />
+              >
+                <i
+                  className="bi bi-dash p-1"
+                  style={{ fontSize: "25px", cursor: "pointer" }}
+                  onClick={() => handleQuantity(-1)}
+                />
+                <span className="h3 mt-3 px-3">{quantity}</span>
+                <i
+                  className="bi bi-plus p-1"
+                  style={{ fontSize: "25px", cursor: "pointer" }}
+                  onClick={() => handleQuantity(+1)}
+                />
+              </div>
+            </div>
+            <div className="d-flex">
+              <button
+                className="btn btn-success me-2 flex-fill"
+                //disabled={isAddingToCart || !selectedPackage}
+                onClick={handleAddToCart}
+              >
+                Add to cart
+              </button>
+              <button className="btn btn-secondary flex-fill">
+                <NavLink
+                  className="nav-link active"
+                  aria-current="page"
+                  to="/"
+                  onClick={() => navigate(-1)}
+                >
+                  Back to Home
+                </NavLink>
+              </button>
             </div>
           </div>
-          <div className="d-flex">
-            <button
-              className="btn btn-success me-2 flex-fill"
-              onClick={() => handleAddToCart(menuItem)}
-              disabled={isAddingToCart}
-            >
-              {isAddingToCart ? "Adding..." : "Add to Cart"}
-            </button>
-            <button className="btn btn-secondary flex-fill">
-              Back to Home
-            </button>
+          <div className="col-md-5 d-flex justify-content-center align-items-center">
+            <img
+              src={menuItemData.data?.image}
+              style={{ borderRadius: "50%", maxWidth: "100%" }}
+              alt="No content"
+              onClick={() => navigate(-1)}
+            />
           </div>
         </div>
-        <div className="col-md-5 d-flex justify-content-center align-items-center">
-          <img
-            src={menuItem.image}
-            style={{ borderRadius: "50%", maxWidth: "100%" }}
-            alt="No content"
-          />
+      ) : (
+        <div
+          className="d-flex justify-content-center"
+          style={{ width: "100%" }}
+        >
+          <MainLoader />
         </div>
-      </div>
+      )}
     </div>
   );
 }
