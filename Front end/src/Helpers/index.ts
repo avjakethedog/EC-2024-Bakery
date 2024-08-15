@@ -1,3 +1,5 @@
 import toastNotify from "./toasNotify";
 import inputHelper from "./inputHelper";
-export {inputHelper, toastNotify}
+import { parseAddress } from "./parseAddress";
+
+export {inputHelper, toastNotify, parseAddress}

@@ -14,6 +14,18 @@ connectDB()
 app.use(cors());
 routes(app);
 
+app.post('/create-paypal-order', async (req, res) => {
+    const orderInfo = req.body;
+    const result = await createPayPalOrder(orderInfo);
+    res.json(result);
+  });
+  
+  app.post('/capture-paypal-order', async (req, res) => {
+    const { orderId } = req.body;
+    const result = await capturePayPalOrder(orderId);
+    res.json(result);
+  });
+
 app.listen(PORT, () =>{
     console.log(`Server is running in http://localhost:${PORT}`)
 })

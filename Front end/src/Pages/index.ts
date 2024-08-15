@@ -7,5 +7,6 @@ import Register from "./Register";
 import AccessDenied from "./AccessDenied";
 import AuthenticationTest from "./AuthenticationTest";
 import AuthenticationTestAdmin from "./AuthenticationTestAdmin";
-
-export {Home, NotFound, MenuItemDetails, ShoppingCart, Login, Register, AccessDenied, AuthenticationTest, AuthenticationTestAdmin};
+import Payment from "./Payment";
+import PaymentQuick from "./PaymentQiuck";
+export {Home, NotFound, MenuItemDetails, ShoppingCart, Login, Register, AccessDenied, AuthenticationTest, AuthenticationTestAdmin, Payment, PaymentQuick};

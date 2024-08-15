@@ -9,6 +9,7 @@ import { useRegisterMutation } from "../Apis/authApi";
 function Register() {
   const [registerUser] = useRegisterMutation();
   const navigate = useNavigate();
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [userInput, setUserInput] = useState({
@@ -20,6 +21,56 @@ function Register() {
     address: "",
     email: "",
   });
+
+  const [city, setCity] = useState<string>("");
+  const [district, setDistrict] = useState<string>("");
+  const [street, setStreet] = useState<string>("");
+  const [fullAddress, setFullAddress] = useState<string>("");
+
+  const cities: string[] = ["TP.HCM", "Ngoại Thành"];
+  const districts: Record<string, string[]> = {
+    "TP.HCM": [
+      "Quận 1",
+      "Quận 2",
+      "Quận 3",
+      "Quận 4",
+      "Quận 5",
+      "Quận 6",
+      "Quận 7",
+      "Quận 8",
+      "Quận 9",
+      "Quận 10",
+      "Quận 11",
+      "Quận 12",
+      "Tân Bình",
+      "Tân Phú",
+      "Bình Tân",
+      "Bình Thạnh",
+      "Gò Vấp",
+      "Phú Nhuận",
+      "Thủ Đức",
+      "Nhà Bè",
+      "Cần Giờ",
+      "Củ Chi",
+      "Hóc Môn",
+      "Bình Chánh",
+    ],
+    "Ngoại Thành": [],
+  };
+
+  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCity = e.target.value;
+    setCity(selectedCity);
+    setDistrict(""); // Reset district when city changes
+  };
+
+  const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setDistrict(e.target.value);
+  };
+
+  const handleStreetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setStreet(e.target.value);
+  };
 
   const handleUserInput = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -63,24 +114,38 @@ function Register() {
       }
     }
 
-    if (name === "fullName") {
-      const nameRegex = /^[a-zA-Z\s]*$/;
-      if (!nameRegex.test(value)) {
-        e.target.setCustomValidity(
-          "Tên không được chứa các ký tự số hoặc ký tự đặc biệt."
-        );
-        e.target.reportValidity();
-        return;
-      } else {
-        e.target.setCustomValidity("");
-      }
-    }
+    // if (name === "fullName") {
+    //   const nameRegex = /^[a-zA-Z\s]*$/;
+    //   if (!nameRegex.test(value)) {
+    //     e.target.setCustomValidity(
+    //       "Tên không được chứa các ký tự số hoặc ký tự đặc biệt."
+    //     );
+    //     e.target.reportValidity();
+    //     return;
+    //   } else {
+    //     e.target.setCustomValidity("");
+    //   }
+    // }
+
+    // if (name === "fullName") {
+    //   // Biểu thức chính quy cho phép các chữ cái, bao gồm cả dấu tiếng Việt
+    //   const nameRegex = /^[a-zA-Z\s\u00C0-\u1EF9]*$/;
+    //   if (!nameRegex.test(value)) {
+    //     e.target.setCustomValidity(
+    //       "Tên không được chứa các ký tự số hoặc ký tự đặc biệt."
+    //     );
+    //     e.target.reportValidity();
+    //     return;
+    //   } else {
+    //     e.target.setCustomValidity("");
+    //   }
+    // }
 
     if (name === "userName") {
       const usernameRegex = /^[a-zA-Z0-9@$#*!%&]*$/;
-      const hasDiacritics =
-        /[áàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵđ]/;
-      if (!usernameRegex.test(value) || hasDiacritics.test(value)) {
+      // const hasDiacritics =
+      //   /[áàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵđ]/;  || hasDiacritics.test(value)
+      if (!usernameRegex.test(value)) {
         e.target.setCustomValidity(
           "Username không được chứa dấu hoặc ký tự đặc biệt trừ @, $, #, *, !, %, &."
         );
@@ -110,14 +175,13 @@ function Register() {
     setUserInput(tempData);
   };
 
-  // const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  //   const key = e.key;
+  const handleSaveAddress = () => {
+    // Tạo fullAddress và lưu lại vào state tĩnh
+    const address = `${street}, ${district}, ${city}`;
+    setFullAddress(address);
+    console.log("Full Address saved:", address);
+  };
 
-  //   // Chỉ cho phép nhập các ký tự số
-  //   if (!/^[0-9]$/.test(key)) {
-  //     e.preventDefault();
-  //   }
-  // };
   const handleConfirmPasswordBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     if (
       userInput.confirmPassword &&
@@ -152,18 +216,25 @@ function Register() {
     e.preventDefault();
     setLoading(true);
 
+    //const fullAddress = `${street}, ${district}, ${city}`;
+    const fullAddress =
+      city === "Ngoại Thành"
+        ? `${street}, ${city}`
+        : `${street}, ${district}, ${city}`;
+    setFullAddress(fullAddress);
+
     try {
       const response: apiResponse = await registerUser({
         name: userInput.fullName,
         username: userInput.userName,
         password: userInput.password,
-        phone: userInput.phone,
-        shippingAddress: userInput.address,
+        sdt: userInput.phone,
+        shippingAddress: fullAddress,
         email: userInput.email,
       }).unwrap();
 
       // Xử lý dữ liệu trả về khi thành công
-      console.log(response.data);
+      console.log(response);
       alert(response.message);
       // Điều hướng tới trang khác nếu cần
       navigate("");
@@ -190,6 +261,12 @@ function Register() {
       return;
     }
   };
+
+  // if (typeof fullAddress === "string") {
+  //   console.log("fullAddress là chuỗi:", fullAddress);
+  // } else {
+  //   console.log("fullAddress không phải là chuỗi:", fullAddress);
+  // }
 
   return (
     <div
@@ -320,7 +397,7 @@ function Register() {
               // onKeyPress={handleKeyPress}
             />
           </div>
-          <div className="input-group mb-3">
+          {/* <div className="input-group mb-3">
             <div className="input-group-prepend">
               <span className="input-group-text" id="basic-addon5">
                 <img
@@ -338,6 +415,77 @@ function Register() {
               name="address"
               onChange={handleUserInput}
               required
+            />
+          </div>  */}
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <select
+                className="form-control"
+                value={city}
+                onChange={handleCityChange}
+                required
+              >
+                <option value="">Chọn thành phố</option>
+                {cities.map((city, index) => (
+                  <option key={index} value={city}>
+                    {city}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-md-6 mb-3">
+              <select
+                className="form-control"
+                value={district}
+                onChange={handleDistrictChange}
+                required
+                disabled={!city}
+              >
+                <option value="">Chọn quận/huyện</option>
+                {city &&
+                  districts[city].map((district, index) => (
+                    <option key={index} value={district}>
+                      {district}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          </div>
+          <div className="input-group mb-3">
+            <div className="input-group-prepend">
+              <span className="input-group-text" id="basic-addon8">
+                <img
+                  src="https://img.icons8.com/ios-filled/50/000000/address.png"
+                  alt="Street Icon"
+                  style={{ width: "20px" }}
+                />
+              </span>
+            </div>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Số nhà"
+              value={street}
+              onChange={handleStreetChange}
+              required
+            />
+          </div>
+          <div className="input-group mb-3">
+            <div className="input-group-prepend">
+              <span className="input-group-text" id="basic-addon9">
+                <img
+                  src="https://img.icons8.com/ios-filled/50/000000/address.png"
+                  alt="Full Address Icon"
+                  style={{ width: "20px" }}
+                />
+              </span>
+            </div>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Địa chỉ đầy đủ"
+              value={fullAddress}
+              readOnly
             />
           </div>
           <div className="input-group mb-3">
@@ -360,6 +508,13 @@ function Register() {
               required
             />
           </div>
+          <button
+            type="button"
+            className="btn btn-secondary mb-3"
+            onClick={handleSaveAddress}
+          >
+            Xác nhận địa chỉ
+          </button>
           <button type="submit" className="btn btn-warning w-100">
             Sign up
           </button>

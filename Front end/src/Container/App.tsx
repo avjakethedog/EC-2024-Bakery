@@ -10,6 +10,8 @@ import {
   AuthenticationTest,
   AuthenticationTestAdmin,
   AccessDenied,
+  Payment,
+  PaymentQuick,
 } from "../Pages";
 import { Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
@@ -81,6 +83,8 @@ function App() {
             element={<AuthenticationTestAdmin />}
           ></Route>
           <Route path="/denied" element={<AccessDenied />}></Route>
+          <Route path="/payment" element={<Payment />}></Route>
+          <Route path="/paymentQuick" element={<PaymentQuick />}></Route>
           <Route path="*" element={<NotFound />}></Route>
         </Routes>
       </div>

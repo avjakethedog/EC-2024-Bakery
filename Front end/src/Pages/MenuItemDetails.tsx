@@ -209,6 +209,25 @@ function MenuItemDetails() {
       setIsAddingToCart(false);
     }
   };
+  const price = selectedPackage?.price ?? 0;
+  const handleBuyNow = () => {
+    // if (!selectedPackage) {
+    //   alert("Vui lòng chọn gói sản phẩm trước khi mua ngay!");
+    //   return;
+    // }
+    // Điều hướng đến trang PaymentQuick
+
+    navigate("/paymentQuick", {
+      state: {
+        selectedProduct: {
+          name: menuItemData.data?.name,
+          quantity: quantity,
+          price: price, // Sử dụng giá trị mặc định 0 nếu undefined
+          total: price * quantity, // Sử dụng giá trị mặc định 0 nếu undefined
+        },
+      },
+    });
+  };
 
   return (
     <div className="container pt-4 pt-md-5">
@@ -287,12 +306,12 @@ function MenuItemDetails() {
             <div className="d-flex">
               <button
                 className="btn btn-success me-2 flex-fill"
-                //disabled={isAddingToCart || !selectedPackage}
+                disabled={isAddingToCart || !selectedPackage}
                 onClick={handleAddToCart}
               >
                 Add to cart
               </button>
-              <button className="btn btn-secondary flex-fill">
+              {/* <button className="btn btn-secondary flex-fill">
                 <NavLink
                   className="nav-link active"
                   aria-current="page"
@@ -301,6 +320,13 @@ function MenuItemDetails() {
                 >
                   Back to Home
                 </NavLink>
+              </button> */}
+              <button
+                className="btn btn-primary flex-fill"
+                onClick={handleBuyNow}
+                disabled={!selectedPackage} // Chỉ cho phép bấm nếu đã chọn gói sản phẩm
+              >
+                Mua Ngay
               </button>
             </div>
           </div>

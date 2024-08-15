@@ -8,9 +8,9 @@ export const initialState: userModel = {
   username: "",
   password: "",
   shippingAddress: "",
-  role: "",
+  role: "customer",
   isAdmin:false ,
-  status: "",
+  status: "active",
   };
   
   export const userAuthSlice = createSlice({
@@ -24,9 +24,9 @@ export const initialState: userModel = {
         state.username = action.payload.username;
         state.password = action.payload.password;
         state.shippingAddress = action.payload.shippingAddress;
-        state.role = action.payload.role;
+        state.role = action.payload.role || state.role;
         state.isAdmin = false;
-        state.status = action.payload.status;
+        state.status = action.payload.status || state.status;
         state._id = action.payload._id;
       },
     },

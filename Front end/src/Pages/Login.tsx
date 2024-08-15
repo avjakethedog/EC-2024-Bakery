@@ -30,44 +30,81 @@ function Login() {
     e.preventDefault();
     setLoading(true);
 
+    // try {
+    //   const response: apiResponse = await loginUser({
+    //     username: userInput.username,
+    //     password: userInput.password,
+    //   }).unwrap();
+    //   // Xử lý dữ liệu trả về khi thành công
+    //   console.log(response.data);
+    //   //localStorage.setItem("userId", JSON.stringify(response.data));
+    //   sessionStorage.setItem("userId", JSON.stringify(response.data));
+
+    //   const orderId = response.existingOrder?._id?.toString() || "";
+    //   //localStorage.setItem("orderId", orderId);
+
+    //   sessionStorage.setItem("orderId", orderId);
+
+    //   //sessionStorage.setItem("orderId", JSON.stringify(response.existingOrder));
+
+    //   // localStorage.setItem(
+    //   //   "orderId",
+    //   //   JSON.stringify(response.existingOrder._id)
+    //   // );
+    //   dispatch(setLoggedInUser(response.data));
+    //   //dispatch(setShoppingCart(response.existingOrder));
+    //   //alert(response.message);
+    //   // Điều hướng tới trang khác nếu cần
+    //   //navigate("/");
+    //   if (response.data && response.status === "OK") {
+    //     toastNotify("Đăng nhập thành công");
+    //   }
+    //   window.location.replace("/");
+    // } catch (error) {
+    //   // Xử lý lỗi nếu có
+    //   console.error("Đã có lỗi xảy ra: ", error);
+    //   toastNotify("Đăng nhập thất bại", "error");
+    //   window.location.reload();
+
+    //   // alert("Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.");
+    // } finally {
+    //   setLoading(false);
+    // }
+    // setLoading(false);
     try {
       const response: apiResponse = await loginUser({
         username: userInput.username,
         password: userInput.password,
       }).unwrap();
-      // Xử lý dữ liệu trả về khi thành công
-      console.log(response.data);
-      //localStorage.setItem("userId", JSON.stringify(response.data));
-      sessionStorage.setItem("userId", JSON.stringify(response.data));
 
-      const orderId = response.existingOrder?._id?.toString() || "";
-      //localStorage.setItem("orderId", orderId);
+      // Kiểm tra nếu response.data tồn tại và là JSON hợp lệ
+      if (response.data && typeof response.data === "object") {
+        console.log(response.data);
+        sessionStorage.setItem("userId", JSON.stringify(response.data));
 
-      sessionStorage.setItem("orderId", orderId);
+        const orderId = response.existingOrder?._id?.toString() || "";
+        sessionStorage.setItem("orderId", orderId);
 
-      //sessionStorage.setItem("orderId", JSON.stringify(response.existingOrder));
+        dispatch(setLoggedInUser(response.data));
+        // dispatch(setShoppingCart(response.existingOrder));
 
-      // localStorage.setItem(
-      //   "orderId",
-      //   JSON.stringify(response.existingOrder._id)
-      // );
-      dispatch(setLoggedInUser(response.data));
-      //dispatch(setShoppingCart(response.existingOrder));
-      //alert(response.message);
-      // Điều hướng tới trang khác nếu cần
-      //navigate("/");
-      if (response.data && response.status === "OK") {
-        toastNotify("Đăng nhập thành công");
+        if (response.status === "OK") {
+          toastNotify("Đăng nhập thành công");
+          window.location.replace("/");
+        } else {
+          setError("Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");
+          toastNotify("Đăng nhập thất bại", "error");
+        }
+      } else {
+        throw new Error("Dữ liệu phản hồi không hợp lệ");
       }
-      window.location.replace("/");
     } catch (error) {
-      // Xử lý lỗi nếu có
       console.error("Đã có lỗi xảy ra: ", error);
-      alert("Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.");
+      setError("Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại.");
+      toastNotify("Đăng nhập thất bại", "error");
     } finally {
       setLoading(false);
     }
-    setLoading(false);
   };
   return (
     <div

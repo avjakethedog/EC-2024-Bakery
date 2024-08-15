@@ -104,7 +104,7 @@ const CartItem: React.FC<CartItemProps> = ({
         <div className="d-flex flex-column justify-content-center align-items-start mb-2">
           <span style={{ fontWeight: 300 }}>{data.data?.name}</span>
           <span className="text-danger">
-            ${data.data?.price || cartItem.priceone}
+            {data.data?.price || cartItem.priceone}đ
           </span>
           <div
             className="d-flex justify-content-between align-items-center p-2 rounded-pill custom-card-shadow"
@@ -130,7 +130,7 @@ const CartItem: React.FC<CartItemProps> = ({
         <span
           style={{ fontSize: "1.5rem", fontWeight: "bold", color: "green" }}
         >
-          ${cartItem.quantity * cartItem.priceone}
+          {cartItem.quantity * cartItem.priceone}đ
         </span>
         <button
           className="btn btn-danger mx-1 mt-2"
