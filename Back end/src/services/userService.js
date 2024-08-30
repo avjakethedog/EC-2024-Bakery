@@ -1,4 +1,5 @@
-const UserModel = require('../models/user')
+const UserModel = require('../models/user');
+const OrderModel = require('../models/order')
 
 const createUser = async (UserInfo) => {
     try {
@@ -15,31 +16,42 @@ const createUser = async (UserInfo) => {
       const newUser = await UserModel.create({
         ...UserInfo
       });
+      
       if(newUser){
+        const countOrders = await OrderModel.countDocuments();
+        var order = new OrderModel({userid: newUser._id, trackingNumber: countOrders + 1, shippingAddress:newUser.shippingAddress });
+        
+        await order.save();
+
+      
         return {
             status: 'OK',
             message: 'Đăng kí tài khoản thành công!',
-            data: newUser,a
+            data: newUser
           };
       }
     
     } catch (error) {
-      return { status: 'ERROR', message: 'Lỗi khi đăng kí' };
+      return { status: 'ERROR', message: error.message };
     }
   };
 
   const loginUser = async (UserInfo) => {
     try {
 
-      const existing = await UserModel.findOne({ username: UserInfo.username, password: UserInfo.password });
-      if (!existing) {
+      const existingUser = await UserModel.findOne({ username: UserInfo.username, password: UserInfo.password });
+      const existingOrder = await OrderModel.findOne({userid: existingUser._id , orderStatus: "Cart"});
+
+      if (!existingUser || !existingOrder) {
         return { status: 'ERROR', message: 'Đăng nhập không thành công' };
       }
       else{
+        const { password, ...userWithoutPassword } = existingUser.toObject();
         return {
+          
             status: 'OK',
             message: 'Đăng nhập thành công!',
-            data: existing
+            data: userWithoutPassword,existingOrder
           };
       }
     } catch (error) {

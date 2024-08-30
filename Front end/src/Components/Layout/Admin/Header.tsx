@@ -4,48 +4,59 @@ let logo = require('../../../Assests/Images/logo.png'); // Ensure the path is co
 
 const Header: React.FC = () => {
   return (
-    <div className="flex justify-between items-center bg-gray-100 p-4 shadow">
-      <div className="flex items-center">
-        <div className="mr-4">
+    <nav className="navbar navbar-expand-lg navbar-light bg-light shadow p-3">
+      <div className="container-fluid">
+        <div className="d-flex align-items-center">
           <img 
-            src={logo} // Replace with the path to your logo
+            src={logo}
             alt="Logo"
-            className="h-21 w-21 md:h-24 md:w-24"
+            className="me-3"
+            style={{ height: '50px', width: '50px' }} // Adjust size as needed
           />
+          <span className="navbar-brand mb-0 h1">MANAGEMENT DEPARTMENT</span>
         </div>
-        <div className="text-2xl font-bold">MANAGEMENT DEPARTMENT</div>
+        <div className="collapse navbar-collapse justify-content-center">
+          <ul className="navbar-nav">
+            <li className="nav-item">
+              <NavLink 
+                to="/admin/orderlist"
+                className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+              >
+                ORDER LIST
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink 
+                to="/admin/ordersinday"
+                className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+              >
+                ORDERS IN DAY
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink 
+                to="/admin/revenue"
+                className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+              >
+                REVENUE
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink 
+                to="/admin/productioncost"
+                className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+              >
+                PRODUCTION COST
+              </NavLink>
+            </li>
+          </ul>
+        </div>
+        <div className="d-flex align-items-center">
+          <div className="rounded-circle bg-secondary" style={{ width: '40px', height: '40px' }}></div>
+          <span className="ms-2 text-secondary">Hi User</span>
+        </div>
       </div>
-      <div className="flex space-x-8">
-        <NavLink 
-          to="/admin/orderlist"
-          className="text-gray-700 hover:text-blue-500 hover:underline"
-        >
-          ORDER LIST
-        </NavLink>
-        <NavLink 
-          to="/admin/revenue"
-          className="text-gray-700 hover:text-blue-500 hover:underline"
-        >
-          REVENUE
-        </NavLink>
-        <NavLink 
-          to="/admin/orderhistory"
-          className="text-gray-700 hover:text-blue-500 hover:underline"
-        >
-          ORDER HISTORY
-        </NavLink>
-        <NavLink 
-          to="/admin/productioncost"
-          className="text-gray-700 hover:text-blue-500 hover:underline"
-        >
-          PRODUCTION COST
-        </NavLink>
-      </div>
-      <div className="flex items-center">
-        <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-        <span className="ml-2 text-gray-700">Hi User</span>
-      </div>
-    </div>
+    </nav>
   );
 }
 

@@ -27,63 +27,63 @@ const ProductionCost: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-start justify-center p-8">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-6xl flex">
-        <div className="w-1/4 mr-8">
-          <div className="grid grid-cols-1 gap-4 mb-4">
+    <div className="min-vh-100 d-flex align-items-start justify-content-center p-4 bg-light">
+      <div className="bg-white p-4 rounded shadow w-100 max-w-6xl d-flex">
+        <div className="w-25 me-4">
+          <div className="mb-4">
             <input
               type="text"
               placeholder="Cake"
               value={cake}
               onChange={(e) => setCake(e.target.value)}
-              className="p-2 border rounded"
+              className="form-control mb-3"
             />
             <input
               type="text"
               placeholder="Cost of raw material"
               value={rawMaterialCost}
               onChange={(e) => setRawMaterialCost(e.target.value)}
-              className="p-2 border rounded"
+              className="form-control mb-3"
             />
             <input
               type="text"
               placeholder="Electricity costs"
               value={electricityCost}
               onChange={(e) => setElectricityCost(e.target.value)}
-              className="p-2 border rounded"
+              className="form-control mb-3"
             />
             <input
               type="text"
               placeholder="Water costs"
               value={waterCost}
               onChange={(e) => setWaterCost(e.target.value)}
-              className="p-2 border rounded"
+              className="form-control mb-3"
             />
           </div>
           <button
             onClick={handleAdd}
-            className="bg-green-500 text-white p-2 rounded hover:bg-green-700 w-full"
+            className="btn btn-success w-100"
           >
             ADD
           </button>
         </div>
-        <div className="w-3/4">
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border border-gray-300 p-2">Cake</th>
-                <th className="border border-gray-300 p-2">Cost of raw material</th>
-                <th className="border border-gray-300 p-2">Electricity costs</th>
-                <th className="border border-gray-300 p-2">Water costs</th>
+        <div className="w-75">
+          <table className="table table-bordered">
+            <thead className="table-light">
+              <tr>
+                <th>Cake</th>
+                <th>Cost of raw material</th>
+                <th>Electricity costs</th>
+                <th>Water costs</th>
               </tr>
             </thead>
             <tbody>
               {costs.map((cost, index) => (
                 <tr key={index}>
-                  <td className="border border-gray-300 p-2">{cost.cake}</td>
-                  <td className="border border-gray-300 p-2">{cost.rawMaterialCost}</td>
-                  <td className="border border-gray-300 p-2">{cost.electricityCost}</td>
-                  <td className="border border-gray-300 p-2">{cost.waterCost}</td>
+                  <td>{cost.cake}</td>
+                  <td>{cost.rawMaterialCost}</td>
+                  <td>{cost.electricityCost}</td>
+                  <td>{cost.waterCost}</td>
                 </tr>
               ))}
             </tbody>

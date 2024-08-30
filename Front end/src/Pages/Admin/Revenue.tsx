@@ -45,55 +45,59 @@ const Revenue: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="container mx-auto">
-        <h1 className="text-2xl font-bold mb-8">Revenue Dashboard</h1>
-        <div className="flex flex-col lg:flex-row justify-around mb-8">
-          <div className="w-full lg:w-1/2 p-4">
-            <h2 className="text-xl font-semibold mb-4">Order Status</h2>
-            <Pie 
-              data={orderStatusData} 
-              options={{
-                plugins: {
-                  datalabels: {
-                    formatter: (value, context) => {
-                      const total = (context.chart.data.datasets[0].data as number[]).reduce((acc, curr) => acc + curr, 0);
-                      const percentage = ((value / total) * 100).toFixed(1);
-                      return `${percentage}%`;
-                    },
-                    color: '#fff',
-                    font: {
-                      weight: 'bold'
+    <div className="min-vh-100 bg-light p-4">
+      <div className="container">
+        <h1 className="display-4 mb-4">Revenue Dashboard</h1>
+        <div className="row mb-4">
+          <div className="col-lg-6 mb-4">
+            <h2 className="h5 mb-3">Order Status</h2>
+            <div className="bg-white p-4 rounded shadow-sm">
+              <Pie 
+                data={orderStatusData} 
+                options={{
+                  plugins: {
+                    datalabels: {
+                      formatter: (value, context) => {
+                        const total = (context.chart.data.datasets[0].data as number[]).reduce((acc, curr) => acc + curr, 0);
+                        const percentage = ((value / total) * 100).toFixed(1);
+                        return `${percentage}%`;
+                      },
+                      color: '#fff',
+                      font: {
+                        weight: 'bold'
+                      }
                     }
                   }
-                }
-              }}
-            />
+                }}
+              />
+            </div>
           </div>
-          <div className="w-full lg:w-1/2 p-4">
-            <h2 className="text-xl font-semibold mb-4">Cake Popularity</h2>
-            <Pie 
-              data={cakePopularityData} 
-              options={{
-                plugins: {
-                  datalabels: {
-                    formatter: (value, context) => {
-                      const total = (context.chart.data.datasets[0].data as number[]).reduce((acc, curr) => acc + curr, 0);
-                      const percentage = ((value / total) * 100).toFixed(1);
-                      return `${percentage}%`;
-                    },
-                    color: '#fff',
-                    font: {
-                      weight: 'bold'
+          <div className="col-lg-6 mb-4">
+            <h2 className="h5 mb-3">Cake Popularity</h2>
+            <div className="bg-white p-4 rounded shadow-sm">
+              <Pie 
+                data={cakePopularityData} 
+                options={{
+                  plugins: {
+                    datalabels: {
+                      formatter: (value, context) => {
+                        const total = (context.chart.data.datasets[0].data as number[]).reduce((acc, curr) => acc + curr, 0);
+                        const percentage = ((value / total) * 100).toFixed(1);
+                        return `${percentage}%`;
+                      },
+                      color: '#fff',
+                      font: {
+                        weight: 'bold'
+                      }
                     }
                   }
-                }
-              }}
-            />
+                }}
+              />
+            </div>
           </div>
         </div>
-        <div className="w-full p-4">
-          <h2 className="text-xl font-semibold mb-4">Monthly Revenue</h2>
+        <div className="bg-white p-4 rounded shadow-sm">
+          <h2 className="h5 mb-3">Monthly Revenue</h2>
           <Bar data={monthlyRevenueData} />
         </div>
       </div>

@@ -1,0 +1,23 @@
+const ingredientService = require('../services/ingredientService')
+
+const create = async (req,res)=>{
+    try{
+        const response = await ingredientService.create(req.body)
+        return res.status(200).json(response)
+    }catch (e){
+        return res.status(404).json({e})
+    }
+}
+
+const getAll = async (req,res)=>{
+    try{
+        const response = await ingredientService.getAll()
+        return res.status(200).json(response)
+    }catch (e){
+        return res.status(404).json({e})
+    }
+}
+
+module.exports = {
+    create,getAll
+}

@@ -1,152 +1,180 @@
-import React, { useState } from 'react';
-import Order from '../../Components/Layout/Order';
+import React, { useState, useEffect } from 'react';
+import Order from '../../Components/Layout/Order'; // Đảm bảo đường dẫn là chính xác
 
 type OrderType = {
   id: number;
-  name: string;
-  phone: string;
-  total: string;
-  items: number;
-  date: string;
-  status: 'Confirmed' | 'Completed' | 'Canceled' | 'Ready for pickup' | 'Being cooked' | 'Frozen storage' | 'Delivered';
-  previousStatus?: OrderType['status'];
+  OrderId: number;  // ID của đơn hàng
+  UserId: number;   // ID của người dùng
+  OrderDate: string;  // Ngày đặt hàng (Format: YYYY-MM-DDTHH:MM:SSZ)
+  TotalAmount: number;  // Tổng số tiền (Format: ví dụ: 95000)
+  OrderStatus: 'Pending' | 'Cooking' | 'Ready for pickup' | 'Delivering' | 'Completed' | 'Canceled'; // Trạng thái đơn hàng
+  ShippingMethod?: string; // Phương thức giao hàng (có thể không có)
+  PaymentMethod?: string; // Phương thức thanh toán (có thể không có)
+  PaymentStatus?: string; // Trạng thái thanh toán (có thể không có)
+  SpecialInstructions?: string; // Hướng dẫn đặc biệt (có thể không có)
+  TrackingNumber?: string; // Số tracking (có thể không có)
+  ShippingAddress?: string; // Địa chỉ giao hàng (có thể không có)
+  PreviousStatus?: OrderType['OrderStatus']; // Trạng thái trước đó (có thể không có)
 };
 
-
-const initialOrders: OrderType[] = [
-  {
-    id: 1,
-    name: 'John Doe',
-    phone: '123-456-7890',
-    total: '$100',
-    items: 5,
-    date: '2024-07-25',
-    status: 'Confirmed',
-  },
-  {
-    id: 2,
-    name: 'Jane Doe',
-    phone: '098-765-4321',
-    total: '$150',
-    items: 3,
-    date: '2024-07-26',
-    status: 'Frozen storage',
-  }
-  // ... other orders
-];
-
-const statusOrder: OrderType['status'][] = [
-  'Confirmed',
-  'Being cooked',
-  'Completed',
+const statusOrder: OrderType['OrderStatus'][] = [
+  'Pending',
+  'Cooking',
   'Ready for pickup',
-  'Frozen storage',
-  'Delivered',
+  'Delivering',
+  'Completed',
+  'Canceled'
 ];
 
-
-const getNextStatus = (status: OrderType['status']) => {
+const getNextStatus = (status: OrderType['OrderStatus']): OrderType['OrderStatus'] | null => {
   const currentIndex = statusOrder.indexOf(status);
-  if (status === 'Ready for pickup') {
-    return 'Delivered'; // 'Ready for pickup' luôn chuyển tiếp đến 'Delivered'
-  }
-  return currentIndex !== -1 && currentIndex < statusOrder.length - 1 ? statusOrder[currentIndex + 1] : null;
+
+  return currentIndex !== -1 && currentIndex < statusOrder.length - 1
+    ? statusOrder[currentIndex + 1]
+    : null;
 };
 
-const getPreviousStatus = (status: OrderType['status']) => {
-  if (status === 'Frozen storage') {
-    return 'Completed'; // 'Frozen storage' luôn quay lại 'Completed'
-  }
-
+const getPreviousStatus = (status: OrderType['OrderStatus']): OrderType['OrderStatus'] | null => {
   const currentIndex = statusOrder.indexOf(status);
-  return currentIndex > 0 ? statusOrder[currentIndex - 1] : null;
+
+  return currentIndex > 0
+    ? statusOrder[currentIndex - 1]
+    : null;
 };
 
 const OrderList: React.FC = () => {
-  const [orders, setOrders] = useState<OrderType[]>(initialOrders);
+  const [orders, setOrders] = useState<OrderType[]>([]);
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/orders');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data: OrderType[] = await response.json();
+        setOrders(data);
+      } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+      }
+    };
+
+    fetchOrders();
+  }, []);
 
   const handleOrderClick = (orderId: number) => {
     setExpandedOrderId(prevId => (prevId === orderId ? null : orderId));
   };
 
-  const updateOrderStatus = (orderId: number, newStatus: OrderType['status'], previousStatus?: OrderType['status']) => {
-    setOrders(prevOrders => prevOrders.map(order => {
-      if (order.id === orderId) {
-        // Cập nhật trạng thái của đơn hàng
-        let updatedStatus = newStatus;
-        let updatedPreviousStatus = previousStatus;
-  
-        // Đảm bảo trạng thái chuyển tiếp hợp lệ
-        if (order.status === 'Completed' && (newStatus === 'Ready for pickup' || newStatus === 'Frozen storage')) {
-          updatedPreviousStatus = 'Completed'; // Trạng thái trước khi 'Ready for pickup' hoặc 'Frozen storage' luôn là 'Completed'
-        }
-        
-        if (order.status === 'Ready for pickup' && newStatus === 'Delivered') {
-          updatedPreviousStatus = 'Ready for pickup'; // Trạng thái trước khi 'Delivered' luôn là 'Ready for pickup'
-        }
-  
-        return { ...order, status: updatedStatus, previousStatus: updatedPreviousStatus };
+  const updateOrderStatus = async (orderId: number, newStatus: OrderType['OrderStatus']) => {
+    try {
+      const response = await fetch(`http://localhost:3000/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          OrderStatus: newStatus,
+        }),
+      });
+
+      if (response.ok) {
+        const updatedOrder = await response.json();
+        setOrders(prevOrders =>
+          prevOrders.map(o =>
+            o.OrderId === orderId ? { ...o, OrderStatus: updatedOrder.OrderStatus } : o
+          )
+        );
+      } else {
+        console.error('Failed to update order status', await response.text());
       }
-      return order;
-    }));
-    setExpandedOrderId(null);
+    } catch (error) {
+      console.error('There was a problem with the fetch operation:', error);
+    }
+  };
+
+  const handleNextStatus = (order: OrderType) => {
+    const nextStatus = getNextStatus(order.OrderStatus);
+    if (nextStatus) {
+      updateOrderStatus(order.id, nextStatus);
+    }
+  };
+
+  const handlePreviousStatus = (order: OrderType) => {
+    const previousStatus = getPreviousStatus(order.OrderStatus);
+    if (previousStatus) {
+      updateOrderStatus(order.id, previousStatus);
+    }
+  };
+
+  const handleCancelOrder = (order: OrderType) => {
+    updateOrderStatus(order.id, 'Canceled');
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">ORDER LIST</h1>
-      <table className="min-w-full bg-white border border-gray-200">
+    <div className="container my-4">
+      <h1 className="text-center mb-4">ORDER LIST</h1>
+      <table className="table table-striped table-bordered">
         <thead>
-          <tr>
-            <th className="py-2 px-6 border-b">ID</th>
-            <th className="py-2 px-6 border-b">Name</th>
-            <th className="py-2 px-6 border-b">Phone</th>
-            <th className="py-2 px-6 border-b">Items</th>
-            <th className="py-2 px-6 border-b">Date</th>
-            <th className="py-2 px-6 border-b">Status</th>
-            <th className="py-2 px-6 border-b">Total</th>
+          <tr className="text-center">
+            <th scope="col">ID</th>
+            <th scope="col">Date</th>
+            <th scope="col">Total</th>
+            <th scope="col">Status</th>
+            <th scope="col">Shipping Method</th>
+            <th scope="col">Payment Method</th>
+            <th scope="col">Tracking Number</th>
+            <th scope="col">Payment Status</th>
+            <th scope="col">Note</th>
+            <th scope="col">Address</th>
           </tr>
         </thead>
         <tbody>
           {orders.map((order) => (
-            <React.Fragment key={order.id}>
-              <Order order={order} onClick={() => handleOrderClick(order.id)} />
-              {expandedOrderId === order.id && (
+            <React.Fragment key={order.OrderId}>
+              <Order order={order} onClick={() => handleOrderClick(order.OrderId)} />
+              {expandedOrderId === order.OrderId && (
                 <tr>
-                  <td colSpan={7} className="p-4 bg-gray-100 border-t border-gray-200">
+                  <td colSpan={11} className="bg-light">
                     <div>
-                      <h2 className="text-xl font-bold">Order Details</h2>
-                      <p><strong>ID:</strong> {order.id}</p>
-                      <p><strong>Name:</strong> {order.name}</p>
-                      <p><strong>Phone:</strong> {order.phone}</p>
-                      <p><strong>Items:</strong> {order.items}</p>
-                      <p><strong>Date:</strong> {order.date}</p>
-                      <p><strong>Status:</strong> {order.status}</p>
-                      <p><strong>Total:</strong> {order.total}</p>
-                      {order.status !== 'Completed' && (
-                        <div className="mt-4">
-                          {getPreviousStatus(order.status) && (
-                            <button
-                              className="px-4 py-2 bg-green-500 text-white rounded mr-2"
-                              onClick={() => updateOrderStatus(order.id, getPreviousStatus(order.status)!)}>
-                              Previous Status: {getPreviousStatus(order.status)}
-                            </button>
-                          )}
-                          {getNextStatus(order.status) && (
-                            <button
-                              className="px-4 py-2 bg-blue-500 text-white rounded mr-2"
-                              onClick={() => updateOrderStatus(order.id, getNextStatus(order.status)!)}>
-                              Next Status: {getNextStatus(order.status)}
-                            </button>
-                          )}
-                          <button
-                            className="px-4 py-2 bg-red-500 text-white rounded"
-                            onClick={() => updateOrderStatus(order.id, order.status === 'Canceled' && order.previousStatus ? order.previousStatus : 'Canceled', order.status === 'Canceled' && order.previousStatus ? undefined : order.status)}>
-                            {order.status === 'Canceled' ? 'Undo Cancel' : 'Cancel'}
-                          </button>
-                        </div>
-                      )}
+                      <h2 className="h4">Order Details</h2>
+                      <p><strong>ID:</strong> {order.OrderId}</p>
+                      <p><strong>Date:</strong> {order.OrderDate}</p>
+                      <p><strong>Total:</strong> {order.TotalAmount}</p>
+                      <p><strong>Status:</strong> {order.OrderStatus}</p>
+                      <p><strong>Shipping Method:</strong> {order.ShippingMethod || 'N/A'}</p>
+                      <p><strong>Payment Method:</strong> {order.PaymentMethod || 'N/A'}</p>
+                      <p><strong>Payment Status:</strong> {order.PaymentStatus || 'N/A'}</p>
+                      <p><strong>Special Instructions:</strong> {order.SpecialInstructions || 'N/A'}</p>
+                      <p><strong>Tracking Number:</strong> {order.TrackingNumber || 'N/A'}</p>
+                      <p><strong>Shipping Address:</strong> {order.ShippingAddress || 'N/A'}</p>
+                      <div className="mt-3">
+                        {/* Nút Previous Status */}
+                        <button
+                          className="btn btn-secondary me-2"
+                          onClick={() => handlePreviousStatus(order)}
+                          disabled={order.OrderStatus === 'Pending'}
+                        >
+                          Previous Status
+                        </button>
+                        {/* Nút Next Status */}
+                        <button
+                          className="btn btn-primary me-2"
+                          onClick={() => handleNextStatus(order)}
+                          disabled={order.OrderStatus === 'Completed' || order.OrderStatus === 'Canceled'}
+                        >
+                          Next Status
+                        </button>
+                        {/* Nút Cancel */}
+                        <button
+                          className="btn btn-danger"
+                          onClick={() => handleCancelOrder(order)}
+                          disabled={order.OrderStatus === 'Canceled'}
+                        >
+                          Cancel Order
+                        </button>
+                      </div>
                     </div>
                   </td>
                 </tr>

@@ -77,6 +77,28 @@ const createBakeGood = async (bakeGoodInfo) => {
     }
   };
 
+  
+  const getDetail = async (id) => {
+    try {
+
+      const exist = await BakeGoodModel.findById(id);
+
+      if (exist.length === 0) {
+        return { status: 'ERROR', message: 'Khong co item!' };
+      }
+      else{
+        return {
+          status: 'OK',
+          message: 'Done!',
+          data: exist
+        };
+      }
+    
+    } catch (error) {
+      return { status: 'ERROR', message: `${error.message}` };
+    }
+  };
+
   const filterCateBakeGood = async (cate) => {
     try {
       const exist = await BakeGoodModel.find({category : cate});
@@ -98,5 +120,5 @@ const createBakeGood = async (bakeGoodInfo) => {
   };
 
   module.exports = {
-    createBakeGood,searchBakeGood,getAllBakeGood,filterCateBakeGood
+    createBakeGood,searchBakeGood,getAllBakeGood,filterCateBakeGood,getDetail
 }

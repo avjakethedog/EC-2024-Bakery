@@ -22,19 +22,20 @@ const Header: React.FC = () => {
   }, []);
 
   return (
-    <header className="flex justify-between items-center p-4 border-b border-gray-300 bg-white">
-      <div className="flex items-center space-x-10">
-        <img src={logo} alt="Logo" className="h-21 w-21 md:h-24 md:w-24" />
-        <nav className="hidden md:flex space-x-10">
-          <a href="#" className="text-black hover:text-blue-600">Home</a>
-          <div className="relative" ref={menuRef}>
+    <header className="d-flex justify-content-between align-items-center p-3 border-bottom bg-white">
+      <div className="d-flex align-items-center">
+        <img src={logo} alt="Logo" className="img-fluid" style={{ height: '80px', width: '80px' }} />
+        <nav className="d-none d-md-flex align-items-center ms-3">
+          <a href="#" className="nav-link text-dark d-flex align-items-center me-3" style={{ textDecoration: 'none' }}>Home</a>
+          <div className="position-relative me-3" ref={menuRef}>
             <button
               onClick={toggleMenu}
-              className="flex items-center space-x-1 text-black hover:text-blue-600"
+              className="btn btn-link text-dark d-flex align-items-center"
+              style={{ lineHeight: '1.5', textDecoration: 'none' }} // Đảm bảo không có gạch chân
             >
               <span>Menu</span>
               <svg
-                className="w-5 h-5"
+                className="w-5 h-5 ms-2"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
@@ -48,37 +49,39 @@ const Header: React.FC = () => {
               </svg>
             </button>
             {isMenuOpen && (
-              <div className="absolute left-0 mt-2 w-48 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
-                <a href="#" className="block px-4 py-2 text-base text-gray-700 hover:bg-gray-100">Cake 1</a>
-                <a href="#" className="block px-4 py-2 text-base text-gray-700 hover:bg-gray-100">Cake 2</a>
-                <a href="#" className="block px-4 py-2 text-base text-gray-700 hover:bg-gray-100">Cake 3</a>
-                <a href="#" className="block px-4 py-2 text-base text-gray-700 hover:bg-gray-100">Cake 4</a>
-                <a href="#" className="block px-4 py-2 text-base text-gray-700 hover:bg-gray-100">Cake 5</a>
+              <div className="position-absolute left-0 mt-2 w-48 bg-white border rounded shadow-lg">
+                <a href="#" className="d-block px-4 py-2 text-dark hover:bg-light" style={{ textDecoration: 'none' }}>Cake 1</a>
+                <a href="#" className="d-block px-4 py-2 text-dark hover:bg-light" style={{ textDecoration: 'none' }}>Cake 2</a>
+                <a href="#" className="d-block px-4 py-2 text-dark hover:bg-light" style={{ textDecoration: 'none' }}>Cake 3</a>
+                <a href="#" className="d-block px-4 py-2 text-dark hover:bg-light" style={{ textDecoration: 'none' }}>Cake 4</a>
+                <a href="#" className="d-block px-4 py-2 text-dark hover:bg-light" style={{ textDecoration: 'none' }}>Cake 5</a>
               </div>
             )}
           </div>
-          <a href="#" className="text-black hover:text-blue-600">About Us</a>
+          <a href="#" className="nav-link text-dark d-flex align-items-center" style={{ textDecoration: 'none' }}>About Us</a>
         </nav>
       </div>
-      <div className="flex items-center space-x-10">
-        <div className="relative flex-grow max-w-lg"> {/* Đặt max-width lớn hơn */}
+      <div className="d-flex align-items-center">
+        <div className="position-relative me-3">
           <input
             type="text"
             placeholder="Search for Food items"
-            className="border rounded-full px-4 py-2 pl-10 w-full"
+            className="form-control rounded-pill ps-5"
           />
-          <span className="absolute left-2 top-3 text-gray-500">
+          <span className="position-absolute top-50 start-0 translate-middle-y ps-3 text-secondary">
             <FaSearch />
           </span>
         </div>
-        <div className="hidden md:flex items-center space-x-2">
-          <div className="bg-gray-300 rounded-full h-8 w-8 md:h-10 md:w-10"></div>
-          <span>Hi User</span>
+        <div className="d-none d-md-flex align-items-center me-3">
+          <div className="bg-secondary rounded-circle h-8 w-8 d-flex justify-content-center align-items-center">
+            {/* Placeholder for user avatar */}
+          </div>
+          <span className="ms-2">Hi User</span>
         </div>
-        <span className="text-xl md:text-2xl">
+        <span className="fs-4 me-3">
           <FaShoppingCart />
         </span>
-        <span className="text-xl md:text-2xl">
+        <span className="fs-4">
           <FaClipboardList />
         </span>
       </div>

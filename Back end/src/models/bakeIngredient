@@ -1,0 +1,15 @@
+const mongoose = require('mongoose');
+
+const bakeIngredientSchema = mongoose.Schema({
+    bakeGood: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'bakeGoods' },
+    ingredient: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'ingredients' },
+    quantity: { type: Number,required: true },
+    units: { type: String},
+    loss: { type: Number, default:0},
+}, {
+    timestamps: true
+});
+
+const bakeIngredient = mongoose.model("bakeGoodIngredients", bakeIngredientSchema);
+
+module.exports = bakeIngredient;

@@ -1,43 +1,56 @@
 import React, { forwardRef } from 'react';
 
+type OrderType = {
+  OrderId: number;
+  UserId: number;
+  OrderDate: string;
+  TotalAmount: number;
+  OrderStatus: 'Pending' | 'Cooking' | 'Ready for pickup' | 'Delivering' | 'Completed' | 'Canceled';
+  ShippingMethod?: string;
+  PaymentMethod?: string;
+  PaymentStatus?: string;
+  SpecialInstructions?: string;
+  TrackingNumber?: string;
+  ShippingAddress?: string;
+  PreviousStatus?: OrderType['OrderStatus'];
+};
+
 type OrderProps = {
-  order: {
-    id: number;
-    name: string;
-    phone: string;
-    total: string;
-    items: number;
-    date: string;
-    status: 'Confirmed' | 'Completed' | 'Canceled' | 'Ready for pickup' | 'Being cooked' | 'Frozen storage' | 'Delivered';
-  };
-  onClick: () => void;  // Accept the onClick prop
+  order: OrderType;
+  onClick: () => void;
 };
 
-const statusColors: Record<OrderProps['order']['status'], string> = {
-  "Confirmed": 'bg-green-200 text-green-800',
-  "Completed": 'bg-blue-200 text-blue-800',
-  "Canceled": 'bg-red-200 text-red-800',
-  "Ready for pickup": 'bg-yellow-200 text-yellow-800',
-  "Being cooked": 'bg-yellow-200 text-yellow-800',
-  "Frozen storage": 'bg-purple-200 text-purple-800',
-  "Delivered": 'bg-teal-200 text-teal-800'  // Thêm màu cho trạng thái Delivered
+const statusColors: Record<
+  'Pending' | 'Cooking' | 'Ready for pickup' | 'Delivering' | 'Completed' | 'Canceled',
+  string
+> = {
+  "Pending": 'bg-secondary text-white',
+  "Cooking": 'bg-warning text-dark',
+  "Ready for pickup": 'bg-warning text-dark',
+  "Delivering": 'bg-info text-white',
+  "Completed": 'bg-success text-white',
+  "Canceled": 'bg-danger text-white'
 };
-
 
 const Order = forwardRef<HTMLTableRowElement, OrderProps>(({ order, onClick }, ref) => {
+  console.log("Rendering Order:", order);  // Debugging
+
   return (
-    <tr ref={ref} className="border-b border-gray-200 cursor-pointer hover:bg-gray-100" onClick={onClick}>
-      <td className="py-2 px-6 text-center">{order.id}</td>
-      <td className="py-2 px-6">{order.name}</td>
-      <td className="py-2 px-6 text-center">{order.phone}</td>
-      <td className="py-2 px-6 text-center">{order.items}</td>
-      <td className="py-2 px-6 text-center">{order.date}</td>
-      <td className="py-2 px-6 text-center">
-        <span className={`px-2 py-1 rounded ${statusColors[order.status]}`}>
-          {order.status}
+    <tr ref={ref} className="cursor-pointer" onClick={onClick}>
+      <td className="text-center">{order.OrderId}</td>
+      <td className="text-center">{order.OrderDate}</td>
+      <td className="text-center">{order.TotalAmount}</td>
+      <td className="text-center">
+        <span className={`badge ${statusColors[order.OrderStatus]}`}>
+          {order.OrderStatus}
         </span>
       </td>
-      <td className="py-2 px-6 text-center">{order.total}</td>
+      <td className="text-center">{order.ShippingMethod || 'N/A'}</td>
+      <td className="text-center">{order.PaymentMethod || 'N/A'}</td>
+      <td className="text-center">{order.TrackingNumber || 'N/A'}</td>
+      <td className="text-center">{order.PaymentStatus || 'N/A'}</td>
+      <td className="text-center">{order.SpecialInstructions || 'N/A'}</td>
+      <td className="text-center">{order.ShippingAddress || 'N/A'}</td>
     </tr>
   );
 });
